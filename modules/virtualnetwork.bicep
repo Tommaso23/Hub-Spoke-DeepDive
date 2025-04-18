@@ -1,27 +1,28 @@
 param vnetName string
-param vnetAddressPrefix array
+param vnetAddrPrefix array
 param location string
 param subnets array
 
-
-
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-11-01' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: vnetName
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: vnetAddressPrefix
+      addressPrefixes: vnetAddrPrefix
     }
     subnets: [for subnet in subnets: {
       name: subnet.subnetName
       properties: {
-        addressPrefix: subnet.subnetAddressPrefix
-        routeTable: subnet.routeTableId=='' ? null : {
+        addressPrefix: subnet.subnetAddrPrefix
+        networkSecurityGroup: subnet.nsgId == '' ? null : {
+          id: subnet.nsgId
+        }
+        routeTable: subnet.routeTableId == '' ? null : {
           id: subnet.routeTableId
         }
       }
     }]
-  }
+  } 
 }
 
 output vnetId string = virtualNetwork.id
