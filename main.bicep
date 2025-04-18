@@ -52,9 +52,8 @@ param adminUsername string = 'azureuser'
 @secure()
 param adminPassword string = 'Password123?'
 
-var vmComputerName1 = 'vm-test-itn-1'
-var vmComputerName2 = 'vm-test-itn-2'
-var vmComputerName3 = 'vm-test-itn-3'
+var vmComputerName1 = 'vm-hub-test-itn-1'
+var vmComputerName2 = 'vm-spoke1-test-itn-2'
 
 var windowsPublisher = 'MicrosoftWindowsServer'
 var windowsOffer = 'WindowsServer'
@@ -73,14 +72,6 @@ module spoke1ResourceGroup './modules/resourcegroup.bicep' = {
   name: 'rg-spoke1-test-itn'
   params: {
     rgName: spoke1RGName
-    location: location
-  }
-}
-
-module spoke2ResourceGroup './modules/resourcegroup.bicep' = {
-  name: 'rg-spoke2-test-itn'
-  params: {
-    rgName: spoke2RGName
     location: location
   }
 }
@@ -111,19 +102,5 @@ module spoke1Vnet './modules/virtualnetwork.bicep' = {
   }
   dependsOn: [
     spoke1ResourceGroup
-  ]
-}
-
-module spoke2Vnet './modules/virtualnetwork.bicep' = {
-  name: 'vnet-spoke2-test-itn'
-  scope: resourceGroup(spoke2RGName)
-  params: {
-    vnetName: spoke2VnetName
-    vnetAddrPrefix: spoke2VnetAddrPrefix
-    location: location
-    subnets: [spoke2Subnet]
-  }
-  dependsOn: [
-    spoke2ResourceGroup
   ]
 }
