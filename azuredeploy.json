@@ -1,0 +1,497 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.34.44.8038",
+      "templateHash": "3374362356812421289"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[deployment().location]"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "username administrator for all VMs"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "Password123?",
+      "minLength": 12,
+      "metadata": {
+        "description": "username administrator password for all VMs"
+      }
+    }
+  },
+  "variables": {
+    "hubRGName": "rg-hub-test-itn",
+    "spoke1RGName": "rg-spoke1-test-itn",
+    "spoke2RGName": "rg-spoke2-test-itn",
+    "hubVnetName": "vnet-hub-test-itn",
+    "spoke1VnetName": "vnet-spoke1-test-itn",
+    "spoke2VnetName": "vnet-spoke2-test-itn",
+    "hubVnetAddrPrefix": [
+      "10.0.0.0/24"
+    ],
+    "spoke1VnetAddrPrefix": [
+      "10.0.10.0/24"
+    ],
+    "spoke2VnetAddrPrefix": [
+      "10.0.20.0/24"
+    ],
+    "hubSubnetAddrPrefix": "10.0.10.0/26",
+    "spoke1SubnetAddrPrefix": "10.0.20.0/26",
+    "spoke2SubnetAddrPrefix": "10.0.30.0/26",
+    "hubSubnet": {
+      "subnetAddrPrefix": "[variables('hubSubnetAddrPrefix')]",
+      "subnetName": "AzureFirewallSubnet",
+      "vnetName": "[variables('hubVnetName')]",
+      "nsgId": "",
+      "routeTableId": ""
+    },
+    "spoke1Subnet": {
+      "subnetAddrPrefix": "[variables('spoke1SubnetAddrPrefix')]",
+      "subnetName": "snet-linux-vms",
+      "routeTableId": ""
+    },
+    "spoke2Subnet": {
+      "subnetAddrPrefix": "[variables('spoke2SubnetAddrPrefix')]",
+      "subnetName": "snet-win-vms",
+      "routeTableId": ""
+    },
+    "vmComputerName1": "vm-test-itn-1",
+    "vmComputerName2": "vm-test-itn-2",
+    "vmComputerName3": "vm-test-itn-3",
+    "windowsPublisher": "MicrosoftWindowsServer",
+    "windowsOffer": "WindowsServer",
+    "windowsSku": "2022-Datacenter-azure-edition"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "rg-hub-test-itn",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "rgName": {
+            "value": "[variables('hubRGName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "245938666851683584"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "rgName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-11-01",
+              "name": "[parameters('rgName')]",
+              "location": "[parameters('location')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "rg-spoke1-test-itn",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "rgName": {
+            "value": "[variables('spoke1RGName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "245938666851683584"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "rgName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-11-01",
+              "name": "[parameters('rgName')]",
+              "location": "[parameters('location')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "rg-spoke2-test-itn",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "rgName": {
+            "value": "[variables('spoke2RGName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "245938666851683584"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "rgName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-11-01",
+              "name": "[parameters('rgName')]",
+              "location": "[parameters('location')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vnet-hub-test-itn",
+      "resourceGroup": "[variables('hubRGName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetName": {
+            "value": "[variables('hubVnetName')]"
+          },
+          "vnetAddrPrefix": {
+            "value": "[variables('hubVnetAddrPrefix')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "subnets": {
+            "value": [
+              "[variables('hubSubnet')]"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "1548826431719967062"
+            }
+          },
+          "parameters": {
+            "vnetName": {
+              "type": "string"
+            },
+            "vnetAddrPrefix": {
+              "type": "array"
+            },
+            "location": {
+              "type": "string"
+            },
+            "subnets": {
+              "type": "array"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('vnetName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "subnets",
+                    "count": "[length(parameters('subnets'))]",
+                    "input": {
+                      "name": "[parameters('subnets')[copyIndex('subnets')].subnetName]",
+                      "properties": {
+                        "addressPrefix": "[parameters('subnets')[copyIndex('subnets')].subnetAddrPrefix]",
+                        "networkSecurityGroup": "[if(equals(parameters('subnets')[copyIndex('subnets')].nsgId, ''), null(), createObject('id', parameters('subnets')[copyIndex('subnets')].nsgId))]",
+                        "routeTable": "[if(equals(parameters('subnets')[copyIndex('subnets')].routeTableId, ''), null(), createObject('id', parameters('subnets')[copyIndex('subnets')].routeTableId))]"
+                      }
+                    }
+                  }
+                ],
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('vnetAddrPrefix')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            },
+            "subnets": {
+              "type": "array",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '2024-05-01').subnets]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'rg-hub-test-itn')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vnet-spoke1-test-itn",
+      "resourceGroup": "[variables('spoke1RGName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetName": {
+            "value": "[variables('spoke1VnetName')]"
+          },
+          "vnetAddrPrefix": {
+            "value": "[variables('spoke1VnetAddrPrefix')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "subnets": {
+            "value": [
+              "[variables('spoke1Subnet')]"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "1548826431719967062"
+            }
+          },
+          "parameters": {
+            "vnetName": {
+              "type": "string"
+            },
+            "vnetAddrPrefix": {
+              "type": "array"
+            },
+            "location": {
+              "type": "string"
+            },
+            "subnets": {
+              "type": "array"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('vnetName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "subnets",
+                    "count": "[length(parameters('subnets'))]",
+                    "input": {
+                      "name": "[parameters('subnets')[copyIndex('subnets')].subnetName]",
+                      "properties": {
+                        "addressPrefix": "[parameters('subnets')[copyIndex('subnets')].subnetAddrPrefix]",
+                        "networkSecurityGroup": "[if(equals(parameters('subnets')[copyIndex('subnets')].nsgId, ''), null(), createObject('id', parameters('subnets')[copyIndex('subnets')].nsgId))]",
+                        "routeTable": "[if(equals(parameters('subnets')[copyIndex('subnets')].routeTableId, ''), null(), createObject('id', parameters('subnets')[copyIndex('subnets')].routeTableId))]"
+                      }
+                    }
+                  }
+                ],
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('vnetAddrPrefix')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            },
+            "subnets": {
+              "type": "array",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '2024-05-01').subnets]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'rg-spoke1-test-itn')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vnet-spoke2-test-itn",
+      "resourceGroup": "[variables('spoke2RGName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetName": {
+            "value": "[variables('spoke2VnetName')]"
+          },
+          "vnetAddrPrefix": {
+            "value": "[variables('spoke2VnetAddrPrefix')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "subnets": {
+            "value": [
+              "[variables('spoke2Subnet')]"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "1548826431719967062"
+            }
+          },
+          "parameters": {
+            "vnetName": {
+              "type": "string"
+            },
+            "vnetAddrPrefix": {
+              "type": "array"
+            },
+            "location": {
+              "type": "string"
+            },
+            "subnets": {
+              "type": "array"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('vnetName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "subnets",
+                    "count": "[length(parameters('subnets'))]",
+                    "input": {
+                      "name": "[parameters('subnets')[copyIndex('subnets')].subnetName]",
+                      "properties": {
+                        "addressPrefix": "[parameters('subnets')[copyIndex('subnets')].subnetAddrPrefix]",
+                        "networkSecurityGroup": "[if(equals(parameters('subnets')[copyIndex('subnets')].nsgId, ''), null(), createObject('id', parameters('subnets')[copyIndex('subnets')].nsgId))]",
+                        "routeTable": "[if(equals(parameters('subnets')[copyIndex('subnets')].routeTableId, ''), null(), createObject('id', parameters('subnets')[copyIndex('subnets')].routeTableId))]"
+                      }
+                    }
+                  }
+                ],
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('vnetAddrPrefix')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            },
+            "subnets": {
+              "type": "array",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '2024-05-01').subnets]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'rg-spoke2-test-itn')]"
+      ]
+    }
+  ]
+}
