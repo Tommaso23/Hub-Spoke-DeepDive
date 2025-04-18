@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "484670313835014158"
+      "templateHash": "3076945599350076756"
     }
   },
   "parameters": {
@@ -37,16 +37,17 @@
     "spoke1VnetName": "vnet-spoke1-test-itn",
     "spoke2VnetName": "vnet-spoke2-test-itn",
     "hubVnetAddrPrefix": [
-      "10.0.0.0/24"
-    ],
-    "spoke1VnetAddrPrefix": [
       "10.0.10.0/24"
     ],
-    "spoke2VnetAddrPrefix": [
+    "spoke1VnetAddrPrefix": [
       "10.0.20.0/24"
+    ],
+    "spoke2VnetAddrPrefix": [
+      "10.0.30.0/24"
     ],
     "hubFirewallSubnetAddrPrefix": "10.0.10.0/26",
     "hubGatewaySubnetAddrPrefix": "10.0.10.64/26",
+    "hubVMTestSubnetAddrPrefix": "10.0.10.128/28",
     "spoke1SubnetAddrPrefix": "10.0.20.0/26",
     "spoke2SubnetAddrPrefix": "10.0.30.0/26",
     "hubSubnet": [
@@ -54,23 +55,29 @@
         "subnetAddrPrefix": "[variables('hubFirewallSubnetAddrPrefix')]",
         "subnetName": "AzureFirewallSubnet",
         "vnetName": "[variables('hubVnetName')]",
+        "nsgId": "",
         "routeTableId": ""
       },
       {
         "subnetAddrPrefix": "[variables('hubGatewaySubnetAddrPrefix')]",
         "subnetName": "GatewaySubnet",
         "vnetName": "[variables('hubVnetName')]",
+        "nsgId": "",
+        "routeTableId": ""
+      },
+      {
+        "subnetAddrPrefix": "[variables('hubVMTestSubnetAddrPrefix')]",
+        "subnetName": "snet-hub-test-vm",
+        "vnetName": "[variables('hubVnetName')]",
+        "nsgId": "",
         "routeTableId": ""
       }
     ],
     "spoke1Subnet": {
       "subnetAddrPrefix": "[variables('spoke1SubnetAddrPrefix')]",
       "subnetName": "snet-linux-vms",
-      "routeTableId": ""
-    },
-    "spoke2Subnet": {
-      "subnetAddrPrefix": "[variables('spoke2SubnetAddrPrefix')]",
-      "subnetName": "snet-win-vms",
+      "vnetName": "[variables('spoke1VnetName')]",
+      "nsgId": "",
       "routeTableId": ""
     },
     "vmComputerName1": "vm-hub-test-itn-1",
@@ -83,7 +90,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "rg-hub-test-itn",
+      "name": "hubResourceGroup",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -130,7 +137,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "rg-spoke1-test-itn",
+      "name": "spoke1ResourceGroup",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -177,7 +184,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "vnet-hub-test-itn",
+      "name": "hubVnet",
       "resourceGroup": "[variables('hubRGName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -195,9 +202,7 @@
             "value": "[parameters('location')]"
           },
           "subnets": {
-            "value": [
-              "[variables('hubSubnet')]"
-            ]
+            "value": "[variables('hubSubnet')]"
           }
         },
         "template": {
@@ -264,13 +269,13 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', 'rg-hub-test-itn')]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'hubResourceGroup')]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "vnet-spoke1-test-itn",
+      "name": "spoke1Vnet",
       "resourceGroup": "[variables('spoke1RGName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -357,7 +362,189 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', 'rg-spoke1-test-itn')]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'spoke1ResourceGroup')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "hubVM1",
+      "resourceGroup": "[variables('hubRGName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "virtualMachineName": {
+            "value": "[variables('vmComputerName1')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "subnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'hubVnet'), '2022-09-01').outputs.subnets.value[2].id]"
+          },
+          "publicIpId": {
+            "value": ""
+          },
+          "computerName": {
+            "value": "[variables('vmComputerName1')]"
+          },
+          "privateIpAddress": {
+            "value": "10.0.10.4"
+          },
+          "publisher": {
+            "value": "[variables('windowsPublisher')]"
+          },
+          "offer": {
+            "value": "[variables('windowsOffer')]"
+          },
+          "sku": {
+            "value": "[variables('windowsSku')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "17690817344977185733"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "virtualMachineName": {
+              "type": "string"
+            },
+            "networkInterfaceName": {
+              "type": "string",
+              "defaultValue": "[format('nic-{0}', parameters('virtualMachineName'))]"
+            },
+            "osDiskType": {
+              "type": "string",
+              "defaultValue": "Standard_LRS"
+            },
+            "virtualMachineSize": {
+              "type": "string",
+              "defaultValue": "Standard_DS1_v2"
+            },
+            "adminUsername": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "securestring"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "publicIpId": {
+              "type": "string"
+            },
+            "computerName": {
+              "type": "string"
+            },
+            "privateIpAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Static"
+            },
+            "privateIpAddress": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "publisher": {
+              "type": "string"
+            },
+            "offer": {
+              "type": "string"
+            },
+            "sku": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('networkInterfaceName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      },
+                      "privateIPAllocationMethod": "[parameters('privateIpAllocationMethod')]",
+                      "privateIPAddress": "[parameters('privateIpAddress')]",
+                      "publicIPAddress": "[if(equals(parameters('publicIpId'), ''), null(), createObject('id', parameters('publicIpId')))]"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2024-11-01",
+              "name": "[parameters('virtualMachineName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "[parameters('osDiskType')]"
+                    }
+                  },
+                  "imageReference": {
+                    "publisher": "[parameters('publisher')]",
+                    "offer": "[parameters('offer')]",
+                    "sku": "[parameters('sku')]",
+                    "version": "latest"
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[parameters('computerName')]",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "virtualMachinePrivateIp": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName')), '2024-05-01').ipConfigurations[0].properties.privateIPAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'hubVnet')]"
       ]
     }
   ]
