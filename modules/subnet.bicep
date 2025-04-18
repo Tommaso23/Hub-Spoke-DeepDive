@@ -1,4 +1,4 @@
-param subnetName string
+/*param subnetName string
 param vnetName string
 param subnetAddressPrefix string
 param routeTableId string
@@ -14,3 +14,4 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
 }
 
 output subnetId string = subnet.id
+*/

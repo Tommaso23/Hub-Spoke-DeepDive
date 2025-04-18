@@ -8,12 +8,13 @@ var spoke2RGName = 'rg-spoke2-test-itn'
 var hubVnetName = 'vnet-hub-test-itn'
 var spoke1VnetName = 'vnet-spoke1-test-itn'
 var spoke2VnetName = 'vnet-spoke2-test-itn'
-var hubVnetAddrPrefix = ['10.0.0.0/24'] 
-var spoke1VnetAddrPrefix = ['10.0.10.0/24']
-var spoke2VnetAddrPrefix = ['10.0.20.0/24']
+var hubVnetAddrPrefix = ['10.0.10.0/24'] 
+var spoke1VnetAddrPrefix = ['10.0.20.0/24']
+var spoke2VnetAddrPrefix = ['10.0.30.0/24']
 
 var hubFirewallSubnetAddrPrefix = '10.0.10.0/26'
 var hubGatewaySubnetAddrPrefix = '10.0.10.64/26'
+var hubVMTestSubnetAddrPrefix = '10.0.10.128/28'
 var spoke1SubnetAddrPrefix = '10.0.20.0/26'
 var spoke2SubnetAddrPrefix = '10.0.30.0/26'
 
@@ -22,12 +23,21 @@ var hubSubnet = [
     subnetAddrPrefix: hubFirewallSubnetAddrPrefix
     subnetName: 'AzureFirewallSubnet'
     vnetName: hubVnetName
+    nsgId: ''
     routeTableId: ''
   }
   {
     subnetAddrPrefix: hubGatewaySubnetAddrPrefix
     subnetName: 'GatewaySubnet'
     vnetName: hubVnetName
+    nsgId: ''
+    routeTableId: ''
+  }
+  {
+    subnetAddrPrefix: hubVMTestSubnetAddrPrefix
+    subnetName: 'snet-hub-test-vm'
+    vnetName: hubVnetName
+    nsgId: ''
     routeTableId: ''
   }
 ]
@@ -35,14 +45,11 @@ var hubSubnet = [
 var spoke1Subnet = {
   subnetAddrPrefix: spoke1SubnetAddrPrefix
   subnetName: 'snet-linux-vms'
+  vnetName: spoke1VnetName
+  nsgId: ''
   routeTableId: ''
 }
 
-var spoke2Subnet = {
-  subnetAddrPrefix: spoke2SubnetAddrPrefix
-  subnetName: 'snet-win-vms'
-  routeTableId: ''
-}
 
 @description('username administrator for all VMs')
 param adminUsername string = 'azureuser'
@@ -61,7 +68,7 @@ var windowsSku = '2022-Datacenter-azure-edition'
 
 /*RESOURCE GROUPS*/
 module hubResourceGroup './modules/resourcegroup.bicep' = {
-  name: 'rg-hub-test-itn'
+  name: 'hubResourceGroup'
   params: {
     rgName: hubRGName
     location: location
@@ -69,7 +76,7 @@ module hubResourceGroup './modules/resourcegroup.bicep' = {
 }
 
 module spoke1ResourceGroup './modules/resourcegroup.bicep' = {
-  name: 'rg-spoke1-test-itn'
+  name: 'spoke1ResourceGroup'
   params: {
     rgName: spoke1RGName
     location: location
@@ -78,13 +85,13 @@ module spoke1ResourceGroup './modules/resourcegroup.bicep' = {
 
 /*VIRTUAL NETWORKS*/
 module hubVnet './modules/virtualnetwork.bicep' = {
-  name: 'vnet-hub-test-itn'
+  name: 'hubVnet'
   scope: resourceGroup(hubRGName)
   params: {
     vnetName: hubVnetName
     vnetAddrPrefix: hubVnetAddrPrefix
     location: location
-    subnets: [hubSubnet]
+    subnets: hubSubnet
   }
   dependsOn: [
     hubResourceGroup
@@ -92,7 +99,7 @@ module hubVnet './modules/virtualnetwork.bicep' = {
 }
 
 module spoke1Vnet './modules/virtualnetwork.bicep' = {
-  name: 'vnet-spoke1-test-itn'
+  name: 'spoke1Vnet'
   scope: resourceGroup(spoke1RGName)
   params: {
     vnetName: spoke1VnetName
@@ -103,4 +110,23 @@ module spoke1Vnet './modules/virtualnetwork.bicep' = {
   dependsOn: [
     spoke1ResourceGroup
   ]
+}
+
+/*VIRTUAL MACHINES*/
+module hubVM1 './modules/virtualmachine.bicep' = {
+  name: 'hubVM1'
+  scope: resourceGroup(hubRGName)
+  params: {
+    location: location
+    virtualMachineName: vmComputerName1
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    subnetId: hubVnet.outputs.subnets[2].id 
+    publicIpId: ''
+    computerName: vmComputerName1
+    privateIpAddress: '10.0.10.4'
+    publisher: windowsPublisher
+    offer: windowsOffer
+    sku: windowsSku
+  }
 }
