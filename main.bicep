@@ -27,14 +27,12 @@ var hubSubnet = {
 var spoke1Subnet = {
   subnetAddrPrefix: spoke1SubnetAddrPrefix
   subnetName: 'snet-linux-vms'
-  nsgId: spoke1Nsg.outputs.nsgId
   routeTableId: ''
 }
 
 var spoke2Subnet = {
   subnetAddrPrefix: spoke2SubnetAddrPrefix
   subnetName: 'snet-win-vms'
-  nsgId: spoke2Nsg.outputs.nsgId
   routeTableId: ''
 }
 
@@ -55,4 +53,69 @@ var windowsOffer = 'WindowsServer'
 var windowsSku = '2022-Datacenter-azure-edition'
 
 /*RESOURCE GROUPS*/
-module
+module hubResourceGroup './modules/resourcegroup.bicep' = {
+  name: 'rg-hub-test-itn'
+  params: {
+    rgName: hubRGName
+    location: location
+  }
+}
+
+module spoke1ResourceGroup './modules/resourcegroup.bicep' = {
+  name: 'rg-spoke1-test-itn'
+  params: {
+    rgName: spoke1RGName
+    location: location
+  }
+}
+
+module spoke2ResourceGroup './modules/resourcegroup.bicep' = {
+  name: 'rg-spoke2-test-itn'
+  params: {
+    rgName: spoke2RGName
+    location: location
+  }
+}
+
+/*VIRTUAL NETWORKS*/
+module hubVnet './modules/virtualnetwork.bicep' = {
+  name: 'vnet-hub-test-itn'
+  scope: resourceGroup(hubRGName)
+  params: {
+    vnetName: hubVnetName
+    vnetAddrPrefix: hubVnetAddrPrefix
+    location: location
+    subnets: [hubSubnet]
+  }
+  dependsOn: [
+    hubResourceGroup
+  ]
+}
+
+module spoke1Vnet './modules/virtualnetwork.bicep' = {
+  name: 'vnet-spoke1-test-itn'
+  scope: resourceGroup(spoke1RGName)
+  params: {
+    vnetName: spoke1VnetName
+    vnetAddrPrefix: spoke1VnetAddrPrefix
+    location: location
+    subnets: [spoke1Subnet]
+  }
+  dependsOn: [
+    spoke1ResourceGroup
+  ]
+}
+
+module spoke2Vnet './modules/virtualnetwork.bicep' = {
+  name: 'vnet-spoke2-test-itn'
+  scope: resourceGroup(spoke2RGName)
+  params: {
+    vnetName: spoke2VnetName
+    vnetAddrPrefix: spoke2VnetAddrPrefix
+    location: location
+    subnets: [spoke2Subnet]
+  }
+  dependsOn: [
+    spoke2ResourceGroup
+  ]
+}
