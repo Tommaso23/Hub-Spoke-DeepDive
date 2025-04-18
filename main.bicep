@@ -12,17 +12,25 @@ var hubVnetAddrPrefix = ['10.0.0.0/24']
 var spoke1VnetAddrPrefix = ['10.0.10.0/24']
 var spoke2VnetAddrPrefix = ['10.0.20.0/24']
 
-var hubSubnetAddrPrefix = '10.0.10.0/26' 
+var hubFirewallSubnetAddrPrefix = '10.0.10.0/26'
+var hubGatewaySubnetAddrPrefix = '10.0.10.64/26'
 var spoke1SubnetAddrPrefix = '10.0.20.0/26'
 var spoke2SubnetAddrPrefix = '10.0.30.0/26'
 
-var hubSubnet = {
-  subnetAddrPrefix: hubSubnetAddrPrefix
-  subnetName: 'AzureFirewallSubnet'
-  vnetName: hubVnetName
-  nsgId: ''
-  routeTableId: ''
-}
+var hubSubnet = [
+  {
+    subnetAddrPrefix: hubFirewallSubnetAddrPrefix
+    subnetName: 'AzureFirewallSubnet'
+    vnetName: hubVnetName
+    routeTableId: ''
+  }
+  {
+    subnetAddrPrefix: hubGatewaySubnetAddrPrefix
+    subnetName: 'GatewaySubnet'
+    vnetName: hubVnetName
+    routeTableId: ''
+  }
+]
 
 var spoke1Subnet = {
   subnetAddrPrefix: spoke1SubnetAddrPrefix
