@@ -137,7 +137,7 @@ module spoke1VM1 './modules/virtualmachine.bicep' = {
   params: {
     location: location
     virtualMachineName: vmSpoke1ComputerName
-    amdinUsername: adminUsername
+    adminUsername: adminUsername
     adminPassword: adminPassword
     subnetId: spoke1Vnet.outputs.subnets[0].id
     publicIpId: ''
