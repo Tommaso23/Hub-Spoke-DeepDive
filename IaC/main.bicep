@@ -59,8 +59,8 @@ param adminUsername string = 'azureuser'
 @secure()
 param adminPassword string = 'Password123?'
 
-var vmComputerName1 = 'vm-hub-test-itn-1'
-var vmComputerName2 = 'vm-spoke1-test-itn-2'
+var vmHubComputerName = 'vm-hub-itn-1'
+var vmSpoke1ComputerName = 'vm-spoke1-itn-1'
 
 var windowsPublisher = 'MicrosoftWindowsServer'
 var windowsOffer = 'WindowsServer'
@@ -118,13 +118,31 @@ module hubVM1 './modules/virtualmachine.bicep' = {
   scope: resourceGroup(hubRGName)
   params: {
     location: location
-    virtualMachineName: vmComputerName1
+    virtualMachineName: vmHubComputerName
     adminUsername: adminUsername
     adminPassword: adminPassword
     subnetId: hubVnet.outputs.subnets[2].id 
     publicIpId: ''
-    computerName: vmComputerName1
-    privateIpAddress: '10.0.10.4'
+    computerName: vmHubComputerName
+    privateIpAddress: '10.0.10.132'
+    publisher: windowsPublisher
+    offer: windowsOffer
+    sku: windowsSku
+  }
+}
+
+module spoke1VM1 './modules/virtualmachine.bicep' = {
+  name: 'spoke1VM1'
+  scope: resourceGroup(spoke1RGName)
+  params: {
+    location: location
+    virtualMachineName: vmSpoke1ComputerName
+    amdinUsername: adminUsername
+    adminPassword: adminPassword
+    subnetId: spoke1Vnet.outputs.subnets[0].id
+    publicIpId: ''
+    computerName: vmSpoke1ComputerName
+    privateIpAddress: '10.0.20.4'
     publisher: windowsPublisher
     offer: windowsOffer
     sku: windowsSku
