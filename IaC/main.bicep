@@ -53,18 +53,20 @@ var spoke1Subnet = {
 
 @description('username administrator for all VMs')
 param adminUsername string = 'azureuser'
-
 @description('username administrator password for all VMs')
 @minLength(12)
 @secure()
 param adminPassword string = 'Password123?'
-
 var vmHubComputerName = 'vm-hub-itn-1'
 var vmSpoke1ComputerName = 'vm-spoke1-itn-1'
-
 var windowsPublisher = 'MicrosoftWindowsServer'
 var windowsOffer = 'WindowsServer'
 var windowsSku = '2022-Datacenter-azure-edition'
+
+var fwTier = 'Standard'
+var firewallPolicyName = 'afwp-hub-itn-policy'
+var firewallName = 'azfw-hub-itn'
+
 
 /*RESOURCE GROUPS*/
 module hubResourceGroup './modules/resourcegroup.bicep' = {
@@ -147,4 +149,35 @@ module spoke1VM1 './modules/virtualmachine.bicep' = {
     offer: windowsOffer
     sku: windowsSku
   }
+}
+
+/*FIEWALL*/
+
+module firewallPublicIp './modules/publicIp.bicep' = {
+  name: 'firewallPublicIp'
+  scope: resourceGroup(hubRGName)
+  params: {
+    location: location
+    publicIpAddressName: 'pip-azfw-hub-itn'
+  }
+  dependsOn: [
+    hubResourceGroup
+  ]
+}
+
+module hubFirewall './modules/firewall.bicep' = {
+  name: 'hubFirewall'
+  scope: resourceGroup(hubRGName)
+  params: {
+    fwPolicyName: firewallPolicyName
+    location: location
+    fwName: firewallName
+    subnetId: hubVnet.outputs.subnets[0].id
+    publicIpId: firewallPublicIp.outputs.ipId
+    fwTier: fwTier
+    enableMgmtConf: false
+    mgmtSubnetId: ''
+    mgmtPublicIpId: ''
+  }
+
 }
