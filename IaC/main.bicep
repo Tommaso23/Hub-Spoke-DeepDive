@@ -53,18 +53,20 @@ var spoke1Subnet = {
 
 @description('username administrator for all VMs')
 param adminUsername string = 'azureuser'
-
 @description('username administrator password for all VMs')
 @minLength(12)
 @secure()
 param adminPassword string = 'Password123?'
-
-var vmComputerName1 = 'vm-hub-test-itn-1'
-var vmComputerName2 = 'vm-spoke1-test-itn-2'
-
+var vmHubComputerName = 'vm-hub-itn-1'
+var vmSpoke1ComputerName = 'vm-spoke1-itn-1'
 var windowsPublisher = 'MicrosoftWindowsServer'
 var windowsOffer = 'WindowsServer'
 var windowsSku = '2022-Datacenter-azure-edition'
+
+var fwTier = 'Standard'
+var firewallPolicyName = 'afwp-hub-itn-policy'
+var firewallName = 'azfw-hub-itn'
+
 
 /*RESOURCE GROUPS*/
 module hubResourceGroup './modules/resourcegroup.bicep' = {
@@ -118,15 +120,64 @@ module hubVM1 './modules/virtualmachine.bicep' = {
   scope: resourceGroup(hubRGName)
   params: {
     location: location
-    virtualMachineName: vmComputerName1
+    virtualMachineName: vmHubComputerName
     adminUsername: adminUsername
     adminPassword: adminPassword
     subnetId: hubVnet.outputs.subnets[2].id 
     publicIpId: ''
-    computerName: vmComputerName1
-    privateIpAddress: '10.0.10.4'
+    computerName: vmHubComputerName
+    privateIpAddress: '10.0.10.132'
     publisher: windowsPublisher
     offer: windowsOffer
     sku: windowsSku
   }
+}
+
+module spoke1VM1 './modules/virtualmachine.bicep' = {
+  name: 'spoke1VM1'
+  scope: resourceGroup(spoke1RGName)
+  params: {
+    location: location
+    virtualMachineName: vmSpoke1ComputerName
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    subnetId: spoke1Vnet.outputs.subnets[0].id
+    publicIpId: ''
+    computerName: vmSpoke1ComputerName
+    privateIpAddress: '10.0.20.4'
+    publisher: windowsPublisher
+    offer: windowsOffer
+    sku: windowsSku
+  }
+}
+
+/*FIEWALL*/
+
+module firewallPublicIp './modules/publicIp.bicep' = {
+  name: 'firewallPublicIp'
+  scope: resourceGroup(hubRGName)
+  params: {
+    location: location
+    publicIpAddressName: 'pip-azfw-hub-itn'
+  }
+  dependsOn: [
+    hubResourceGroup
+  ]
+}
+
+module hubFirewall './modules/firewall.bicep' = {
+  name: 'hubFirewall'
+  scope: resourceGroup(hubRGName)
+  params: {
+    fwPolicyName: firewallPolicyName
+    location: location
+    fwName: firewallName
+    subnetId: hubVnet.outputs.subnets[0].id
+    publicIpId: firewallPublicIp.outputs.ipId
+    fwTier: fwTier
+    enableMgmtConf: false
+    mgmtSubnetId: ''
+    mgmtPublicIpId: ''
+  }
+
 }
