@@ -1,4 +1,3 @@
-param fwPolicyName string
 param location string
 param fwName string
 param subnetId string
@@ -7,17 +6,8 @@ param fwTier string
 param enableMgmtConf bool
 param mgmtSubnetId string
 param mgmtPublicIpId string
+param firewallPolicyId string
 
-resource firewallPolicy 'Microsoft.Network/firewallPolicies@2020-11-01' = {
-  name: fwPolicyName
-  location: location
-  properties: {
-    sku: {
-      tier: fwTier
-    }
-    threatIntelMode: 'Alert'
-  }
-}
 
 resource firewall 'Microsoft.Network/azureFirewalls@2022-07-01' = {
   name: fwName
@@ -28,7 +18,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2022-07-01' = {
       tier: fwTier
     }
     firewallPolicy: { 
-      id: firewallPolicy.id
+      id: firewallPolicyId
     }
     managementIpConfiguration: enableMgmtConf == false ? null : {
       name: 'mgmtfirewallconf'

@@ -64,8 +64,8 @@ var windowsOffer = 'WindowsServer'
 var windowsSku = '2022-Datacenter-azure-edition'
 
 var fwTier = 'Standard'
-var firewallPolicyName = 'afwp-hub-itn-policy'
-var firewallName = 'azfw-hub-itn'
+var firewallPolicyName = 'afwp-hub-itn-shared'
+var firewallName = 'afw-hub-itn'
 
 
 /*RESOURCE GROUPS*/
@@ -151,14 +151,27 @@ module spoke1VM1 './modules/virtualmachine.bicep' = {
   }
 }
 
-/*FIEWALL*/
+/*FIREWALL*/
 
 module firewallPublicIp './modules/publicIp.bicep' = {
   name: 'firewallPublicIp'
   scope: resourceGroup(hubRGName)
   params: {
     location: location
-    publicIpAddressName: 'pip-azfw-hub-itn'
+    publicIpAddressName: 'pip-afw-hub-itn'
+  }
+  dependsOn: [
+    hubResourceGroup
+  ]
+}
+
+module firewallPolicy './modules/firewallpolicy.bicep' = {
+  name: 'firewallPolicy'
+  scope: resourceGroup(hubRGName)
+  params: {
+    fwPolicyName: firewallPolicyName
+    location: location
+    fwTier: fwTier
   }
   dependsOn: [
     hubResourceGroup
@@ -169,7 +182,6 @@ module hubFirewall './modules/firewall.bicep' = {
   name: 'hubFirewall'
   scope: resourceGroup(hubRGName)
   params: {
-    fwPolicyName: firewallPolicyName
     location: location
     fwName: firewallName
     subnetId: hubVnet.outputs.subnets[0].id
@@ -178,6 +190,7 @@ module hubFirewall './modules/firewall.bicep' = {
     enableMgmtConf: false
     mgmtSubnetId: ''
     mgmtPublicIpId: ''
+    firewallPolicyId: firewallPolicy.outputs.firewallPolicyId
   }
 
 }
