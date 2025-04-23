@@ -194,3 +194,19 @@ module hubFirewall './modules/firewall.bicep' = {
   }
 
 }
+
+var rulecollections_dnat_misc_in = {}
+module rcg_dnat_misc_in 'modules/rulecollectiongroup.bicep' = {
+  name: 'rcg_dnat_misc_in'
+  scope: resourceGroup(hubRGName)
+  params: {
+    firewallPolicyName: firewallPolicyName
+    ruleCollectionGroupName: 'rcg-dnat-misc-in'
+    priority: 2000
+    ruleCollections: rulecollections_dnat_misc_in
+  }
+  dependsOn: [
+    firewallPolicy
+  ]
+}
+
