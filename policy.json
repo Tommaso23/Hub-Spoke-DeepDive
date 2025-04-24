@@ -1,0 +1,8 @@
+{
+    "name": "MyFederatedCredential",
+    "issuer": "https://token.actions.githubusercontent.com",
+    "subject": "repo:Tommaso23/Hub-Spoke-DeepDive:ref:refs/heads/main",
+    "audiences": [
+      "api://AzureADTokenExchange"
+    ]
+  }

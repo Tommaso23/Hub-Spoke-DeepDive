@@ -48,3 +48,5 @@ resource firewall 'Microsoft.Network/azureFirewalls@2022-07-01' = {
 }
 
 output firewallPrivateIp string = firewall.properties.ipConfigurations[0].properties.privateIPAddress
+
+
