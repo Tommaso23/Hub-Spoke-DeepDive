@@ -21,3 +21,4 @@ jobs:
             scope: subscription
             deploymentName: ${{ github.run_number }}
             template: ./IaC/test.bicep
+            region: 'italynorth'
