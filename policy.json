@@ -1,8 +1,0 @@
-{
-    "name": "Federated-Credential-GHActions",
-    "issuer": "https://token.actions.githubusercontent.com",
-    "subject": "repo:Tommaso23/Hub-Spoke-DeepDive:ref:refs/heads/master",
-    "audiences": [
-      "api://AzureADTokenExchange"
-    ]
-  }
