@@ -2,6 +2,8 @@ param vpnGatewayName string
 param location string
 param gatewaySubnetId string
 param vpnGatewayPublicIpId string
+param publicCertData string
+
 
 
 resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = {
@@ -40,6 +42,15 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = {
       vpnAuthenticationTypes: [
         'Certificate'
       ]
+      vpnClientRootCertificates: [
+        {
+          name: 'rootCert'
+          properties: {
+            publicCertData: publicCertData
+          }
+        }
+      ]
+
     }
     vpnGatewayGeneration: 'Generation1'
   }

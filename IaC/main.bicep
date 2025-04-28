@@ -6,7 +6,7 @@ param finalDeployment bool = false
 
 var hubRGName = 'rg-hub-test-itn'
 var spoke1RGName = 'rg-spoke1-test-itn'
-var spoke2RGName = 'rg-spoke2-test-itn'
+//var spoke2RGName = 'rg-spoke2-test-itn'
 
 var hubVnetName = 'vnet-hub-test-itn'
 var spoke1VnetName = 'vnet-spoke1-test-itn'
@@ -20,6 +20,9 @@ var hubGatewaySubnetAddrPrefix = '10.0.10.64/26'
 var hubVMTestSubnetAddrPrefix = '10.0.10.128/28'
 var spoke1SubnetAddrPrefix = '10.0.20.0/26'
 //var spoke2SubnetAddrPrefix = '10.0.30.0/26'
+
+@secure()
+param publicCertData string
 
 var hubSubnet = [
   {
@@ -232,6 +235,7 @@ module vpnGateway './modules/vpngateway.bicep' = {
     vpnGatewayName: 'vpng-hub-itn'
     gatewaySubnetId: hubVnet.outputs.subnets[1].id
     vpnGatewayPublicIpId: vpnGatewayPublicIp.outputs.ipId
+    publicCertData: publicCertData
   }
   dependsOn: [
     hubResourceGroup
