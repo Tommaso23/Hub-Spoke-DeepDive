@@ -5,13 +5,20 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "10695403229490305387"
+      "templateHash": "4489008602184203924"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]"
+    },
+    "finalDeployment": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Set to true to deploy the entire architecture"
+      }
     },
     "adminUsername": {
       "type": "string",
