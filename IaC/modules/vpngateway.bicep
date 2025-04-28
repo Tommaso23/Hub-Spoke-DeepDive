@@ -41,6 +41,6 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = {
         'Certificate'
       ]
     }
-    vpnGatewayGeneration: 'Generation'
+    vpnGatewayGeneration: 'Generation1'
   }
 }
