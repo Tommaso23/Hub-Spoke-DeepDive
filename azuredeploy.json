@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "9052445660404048194"
+      "templateHash": "9717696992267478340"
     }
   },
   "parameters": {
@@ -1176,7 +1176,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "8151900638050785431"
+              "templateHash": "2275527607485820968"
             }
           },
           "parameters": {
@@ -1233,7 +1233,7 @@
                     "Certificate"
                   ]
                 },
-                "vpnGatewayGeneration": "Generation"
+                "vpnGatewayGeneration": "Generation1"
               }
             }
           ]
