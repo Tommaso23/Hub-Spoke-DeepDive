@@ -1,7 +1,8 @@
 targetScope = 'subscription'
 param location string = deployment().location
 
-@maxLength(3)
+@description('Set the region abbreviation for resource names')
+@maxLength(4)
 param locationPrefix string = 'itn'
 
 @description('Set to true to deploy the entire architecture')
