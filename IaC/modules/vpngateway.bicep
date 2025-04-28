@@ -44,7 +44,7 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = {
       ]
       vpnClientRootCertificates: [
         {
-          name: 'rootCert'
+          name: 'P2SRootCertificate'
           properties: {
             publicCertData: publicCertData
           }
