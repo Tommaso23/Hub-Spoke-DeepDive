@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "9717696992267478340"
+      "templateHash": "7594390483182782649"
     }
   },
   "parameters": {
@@ -19,6 +19,9 @@
       "metadata": {
         "description": "Set to true to deploy the entire architecture"
       }
+    },
+    "publicCertData": {
+      "type": "securestring"
     },
     "adminUsername": {
       "type": "string",
@@ -39,7 +42,6 @@
   "variables": {
     "hubRGName": "rg-hub-test-itn",
     "spoke1RGName": "rg-spoke1-test-itn",
-    "spoke2RGName": "rg-spoke2-test-itn",
     "hubVnetName": "vnet-hub-test-itn",
     "spoke1VnetName": "vnet-spoke1-test-itn",
     "hubVnetAddrPrefix": [
@@ -1167,6 +1169,9 @@
           },
           "vpnGatewayPublicIpId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'vpnGatewayPublicIp'), '2022-09-01').outputs.ipId.value]"
+          },
+          "publicCertData": {
+            "value": "[parameters('publicCertData')]"
           }
         },
         "template": {
@@ -1176,7 +1181,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "2275527607485820968"
+              "templateHash": "2000493320573377324"
             }
           },
           "parameters": {
@@ -1190,6 +1195,9 @@
               "type": "string"
             },
             "vpnGatewayPublicIpId": {
+              "type": "string"
+            },
+            "publicCertData": {
               "type": "string"
             }
           },
@@ -1231,6 +1239,14 @@
                   ],
                   "vpnAuthenticationTypes": [
                     "Certificate"
+                  ],
+                  "vpnClientRootCertificates": [
+                    {
+                      "name": "rootCert",
+                      "properties": {
+                        "publicCertData": "[parameters('publicCertData')]"
+                      }
+                    }
                   ]
                 },
                 "vpnGatewayGeneration": "Generation1"
