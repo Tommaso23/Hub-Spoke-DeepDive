@@ -1,6 +1,9 @@
 targetScope = 'subscription'
 param location string = deployment().location
 
+@description('Set to true to deploy the entire architecture')
+param finalDeployment bool = false
+
 var hubRGName = 'rg-hub-test-itn'
 var spoke1RGName = 'rg-spoke1-test-itn'
 var spoke2RGName = 'rg-spoke2-test-itn'
@@ -152,7 +155,6 @@ module spoke1VM1 './modules/virtualmachine.bicep' = {
 }
 
 /*FIREWALL*/
-
 module firewallPublicIp './modules/publicIp.bicep' = {
   name: 'firewallPublicIp'
   scope: resourceGroup(hubRGName)
