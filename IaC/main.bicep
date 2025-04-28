@@ -1,16 +1,19 @@
 targetScope = 'subscription'
 param location string = deployment().location
 
+@maxLength(3)
+param locationPrefix string = 'itn'
+
 @description('Set to true to deploy the entire architecture')
 param finalDeployment bool = false
 
-var hubRGName = 'rg-hub-test-itn'
-var spoke1RGName = 'rg-spoke1-test-itn'
-//var spoke2RGName = 'rg-spoke2-test-itn'
+var hubRGName = 'rg-hub-test-${locationPrefix}'
+var spoke1RGName = 'rg-spoke1-test-${locationPrefix}'
+//var spoke2RGName = 'rg-spoke2-test-${locationPrefix}'
 
-var hubVnetName = 'vnet-hub-test-itn'
-var spoke1VnetName = 'vnet-spoke1-test-itn'
-//var spoke2VnetName = 'vnet-spoke2-test-itn'
+var hubVnetName = 'vnet-hub-test-${locationPrefix}'
+var spoke1VnetName = 'vnet-spoke1-test-${locationPrefix}'
+//var spoke2VnetName = 'vnet-spoke2-test-${locationPrefix}'
 var hubVnetAddrPrefix = ['10.0.10.0/24'] 
 var spoke1VnetAddrPrefix = ['10.0.20.0/24']
 //var spoke2VnetAddrPrefix = ['10.0.30.0/24']
@@ -63,15 +66,15 @@ param adminUsername string = 'azureuser'
 @minLength(12)
 @secure()
 param adminPassword string = 'Password123?'
-var vmHubComputerName = 'vm-hub-itn-1'
-var vmSpoke1ComputerName = 'vm-spoke1-itn-1'
+var vmHubComputerName = 'vm-hub-${locationPrefix}-1'
+var vmSpoke1ComputerName = 'vm-spoke1-${locationPrefix}-1'
 var windowsPublisher = 'MicrosoftWindowsServer'
 var windowsOffer = 'WindowsServer'
 var windowsSku = '2022-Datacenter-azure-edition'
 
 var fwTier = 'Standard'
-var firewallPolicyName = 'afwp-hub-itn-shared'
-var firewallName = 'afw-hub-itn'
+var firewallPolicyName = 'afwp-hub-${locationPrefix}-shared'
+var firewallName = 'afw-hub-${locationPrefix}'
 
 
 /*RESOURCE GROUPS*/
@@ -163,7 +166,7 @@ module firewallPublicIp './modules/publicip.bicep' = {
   scope: resourceGroup(hubRGName)
   params: {
     location: location
-    publicIpAddressName: 'pip-afw-hub-itn'
+    publicIpAddressName: 'pip-afw-hub-${locationPrefix}'
   }
   dependsOn: [
     hubResourceGroup
@@ -220,7 +223,7 @@ module vpnGatewayPublicIp 'modules/publicip.bicep' = {
   scope: resourceGroup(hubRGName)
   params: {
     location: location
-    publicIpAddressName: 'pip-vpng-hub-itn'
+    publicIpAddressName: 'pip-vpng-hub-${locationPrefix}'
   }
   dependsOn: [
     hubResourceGroup
@@ -232,7 +235,7 @@ module vpnGateway './modules/vpngateway.bicep' = {
   scope: resourceGroup(hubRGName)
   params: {
     location: location
-    vpnGatewayName: 'vpng-hub-itn'
+    vpnGatewayName: 'vpng-hub-${locationPrefix}'
     gatewaySubnetId: hubVnet.outputs.subnets[1].id
     vpnGatewayPublicIpId: vpnGatewayPublicIp.outputs.ipId
     publicCertData: publicCertData
