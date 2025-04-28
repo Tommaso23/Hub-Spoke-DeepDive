@@ -10,16 +10,16 @@ var spoke2RGName = 'rg-spoke2-test-itn'
 
 var hubVnetName = 'vnet-hub-test-itn'
 var spoke1VnetName = 'vnet-spoke1-test-itn'
-var spoke2VnetName = 'vnet-spoke2-test-itn'
+//var spoke2VnetName = 'vnet-spoke2-test-itn'
 var hubVnetAddrPrefix = ['10.0.10.0/24'] 
 var spoke1VnetAddrPrefix = ['10.0.20.0/24']
-var spoke2VnetAddrPrefix = ['10.0.30.0/24']
+//var spoke2VnetAddrPrefix = ['10.0.30.0/24']
 
 var hubFirewallSubnetAddrPrefix = '10.0.10.0/26'
 var hubGatewaySubnetAddrPrefix = '10.0.10.64/26'
 var hubVMTestSubnetAddrPrefix = '10.0.10.128/28'
 var spoke1SubnetAddrPrefix = '10.0.20.0/26'
-var spoke2SubnetAddrPrefix = '10.0.30.0/26'
+//var spoke2SubnetAddrPrefix = '10.0.30.0/26'
 
 var hubSubnet = [
   {
@@ -155,7 +155,7 @@ module spoke1VM1 './modules/virtualmachine.bicep' = {
 }
 
 /*FIREWALL*/
-module firewallPublicIp './modules/publicIp.bicep' = {
+module firewallPublicIp './modules/publicip.bicep' = {
   name: 'firewallPublicIp'
   scope: resourceGroup(hubRGName)
   params: {
@@ -212,3 +212,28 @@ module rcg_dnat_misc_in 'modules/rulecollectiongroup.bicep' = {
   ]
 }
 
+module vpnGatewayPublicIp 'modules/publicip.bicep' = {
+  name: 'vpnGatewayPublicIp'
+  scope: resourceGroup(hubRGName)
+  params: {
+    location: location
+    publicIpAddressName: 'pip-vpng-hub-itn'
+  }
+  dependsOn: [
+    hubResourceGroup
+  ]
+}
+
+module vpnGateway './modules/vpngateway.bicep' = {
+  name: 'vpnGateway'
+  scope: resourceGroup(hubRGName)
+  params: {
+    location: location
+    vpnGatewayName: 'vpng-hub-itn'
+    gatewaySubnetId: hubVnet.outputs.subnets[1].id
+    vpnGatewayPublicIpId: vpnGatewayPublicIp.outputs.ipId
+  }
+  dependsOn: [
+    hubResourceGroup
+  ]
+}
