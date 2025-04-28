@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "4489008602184203924"
+      "templateHash": "9052445660404048194"
     }
   },
   "parameters": {
@@ -42,21 +42,16 @@
     "spoke2RGName": "rg-spoke2-test-itn",
     "hubVnetName": "vnet-hub-test-itn",
     "spoke1VnetName": "vnet-spoke1-test-itn",
-    "spoke2VnetName": "vnet-spoke2-test-itn",
     "hubVnetAddrPrefix": [
       "10.0.10.0/24"
     ],
     "spoke1VnetAddrPrefix": [
       "10.0.20.0/24"
     ],
-    "spoke2VnetAddrPrefix": [
-      "10.0.30.0/24"
-    ],
     "hubFirewallSubnetAddrPrefix": "10.0.10.0/26",
     "hubGatewaySubnetAddrPrefix": "10.0.10.64/26",
     "hubVMTestSubnetAddrPrefix": "10.0.10.128/28",
     "spoke1SubnetAddrPrefix": "10.0.20.0/26",
-    "spoke2SubnetAddrPrefix": "10.0.30.0/26",
     "hubSubnet": [
       {
         "subnetAddrPrefix": "[variables('hubFirewallSubnetAddrPrefix')]",
@@ -1076,6 +1071,178 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'firewallPolicy')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vpnGatewayPublicIp",
+      "resourceGroup": "[variables('hubRGName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "publicIpAddressName": {
+            "value": "pip-vpng-hub-itn"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "7088446576712655599"
+            }
+          },
+          "parameters": {
+            "publicIpAddressName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('publicIpAddressName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              },
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "zones": [
+                "1",
+                "2",
+                "3"
+              ]
+            }
+          ],
+          "outputs": {
+            "ipId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressName'))]"
+            },
+            "ipAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpAddressName')), '2024-05-01').ipAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'hubResourceGroup')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vpnGateway",
+      "resourceGroup": "[variables('hubRGName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vpnGatewayName": {
+            "value": "vpng-hub-itn"
+          },
+          "gatewaySubnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'hubVnet'), '2022-09-01').outputs.subnets.value[1].id]"
+          },
+          "vpnGatewayPublicIpId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'vpnGatewayPublicIp'), '2022-09-01').outputs.ipId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "8151900638050785431"
+            }
+          },
+          "parameters": {
+            "vpnGatewayName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "gatewaySubnetId": {
+              "type": "string"
+            },
+            "vpnGatewayPublicIpId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2023-04-01",
+              "name": "[parameters('vpnGatewayName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "publicIPAddress": {
+                        "id": "[parameters('vpnGatewayPublicIpId')]"
+                      },
+                      "subnet": {
+                        "id": "[parameters('gatewaySubnetId')]"
+                      }
+                    }
+                  }
+                ],
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "enableBgp": false,
+                "sku": {
+                  "name": "VpnGw1AZ",
+                  "tier": "VpnGw1AZ"
+                },
+                "vpnClientConfiguration": {
+                  "vpnClientAddressPool": {
+                    "addressPrefixes": [
+                      "192.168.0.0/29"
+                    ]
+                  },
+                  "vpnClientProtocols": [
+                    "OpenVPN"
+                  ],
+                  "vpnAuthenticationTypes": [
+                    "Certificate"
+                  ]
+                },
+                "vpnGatewayGeneration": "Generation"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', 'hubResourceGroup')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'hubVnet')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'vpnGatewayPublicIp')]"
       ]
     }
   ]
