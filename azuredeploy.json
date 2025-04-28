@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "7594390483182782649"
+      "templateHash": "13687646464275507807"
     }
   },
   "parameters": {
@@ -1181,7 +1181,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "2000493320573377324"
+              "templateHash": "4964372767184491732"
             }
           },
           "parameters": {
@@ -1242,7 +1242,7 @@
                   ],
                   "vpnClientRootCertificates": [
                     {
-                      "name": "rootCert",
+                      "name": "P2SRootCertificate",
                       "properties": {
                         "publicCertData": "[parameters('publicCertData')]"
                       }
