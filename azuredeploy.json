@@ -5,21 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "6093511517227531557"
+      "templateHash": "11187820592594931055"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]"
-    },
-    "locationPrefix": {
-      "type": "string",
-      "defaultValue": "itn",
-      "maxLength": 4,
-      "metadata": {
-        "description": "Set the region abbreviation for resource names"
-      }
     },
     "finalDeployment": {
       "type": "bool",
@@ -48,10 +40,17 @@
     }
   },
   "variables": {
-    "hubRGName": "[format('rg-hub-test-{0}', parameters('locationPrefix'))]",
-    "spoke1RGName": "[format('rg-spoke1-test-{0}', parameters('locationPrefix'))]",
-    "hubVnetName": "[format('vnet-hub-test-{0}', parameters('locationPrefix'))]",
-    "spoke1VnetName": "[format('vnet-spoke1-test-{0}', parameters('locationPrefix'))]",
+    "locationPrefixDict": {
+      "westeurope": "we",
+      "northeurope": "ne",
+      "uksouth": "uks",
+      "italynorth": "itn"
+    },
+    "locationPrefix": "[coalesce(tryGet(variables('locationPrefixDict'), parameters('location')), '')]",
+    "hubRGName": "[format('rg-hub-test-{0}', variables('locationPrefix'))]",
+    "spoke1RGName": "[format('rg-spoke1-test-{0}', variables('locationPrefix'))]",
+    "hubVnetName": "[format('vnet-hub-test-{0}', variables('locationPrefix'))]",
+    "spoke1VnetName": "[format('vnet-spoke1-test-{0}', variables('locationPrefix'))]",
     "hubVnetAddrPrefix": [
       "10.0.10.0/24"
     ],
@@ -92,14 +91,14 @@
       "nsgId": "",
       "routeTableId": ""
     },
-    "vmHubComputerName": "[format('vm-hub-{0}-1', parameters('locationPrefix'))]",
-    "vmSpoke1ComputerName": "[format('vm-spoke1-{0}-1', parameters('locationPrefix'))]",
+    "vmHubComputerName": "[format('vm-hub-{0}-1', variables('locationPrefix'))]",
+    "vmSpoke1ComputerName": "[format('vm-spoke1-{0}-1', variables('locationPrefix'))]",
     "windowsPublisher": "MicrosoftWindowsServer",
     "windowsOffer": "WindowsServer",
     "windowsSku": "2022-Datacenter-azure-edition",
     "fwTier": "Standard",
-    "firewallPolicyName": "[format('afwp-hub-{0}-shared', parameters('locationPrefix'))]",
-    "firewallName": "[format('afw-hub-{0}', parameters('locationPrefix'))]",
+    "firewallPolicyName": "[format('afwp-hub-{0}-shared', variables('locationPrefix'))]",
+    "firewallName": "[format('afw-hub-{0}', variables('locationPrefix'))]",
     "rulecollections_dnat_misc_in": {}
   },
   "resources": [
@@ -766,7 +765,7 @@
             "value": "[parameters('location')]"
           },
           "publicIpAddressName": {
-            "value": "[format('pip-afw-hub-{0}', parameters('locationPrefix'))]"
+            "value": "[format('pip-afw-hub-{0}', variables('locationPrefix'))]"
           }
         },
         "template": {
@@ -1098,7 +1097,7 @@
             "value": "[parameters('location')]"
           },
           "publicIpAddressName": {
-            "value": "[format('pip-vpng-hub-{0}', parameters('locationPrefix'))]"
+            "value": "[format('pip-vpng-hub-{0}', variables('locationPrefix'))]"
           }
         },
         "template": {
@@ -1170,7 +1169,7 @@
             "value": "[parameters('location')]"
           },
           "vpnGatewayName": {
-            "value": "[format('vpng-hub-{0}', parameters('locationPrefix'))]"
+            "value": "[format('vpng-hub-{0}', variables('locationPrefix'))]"
           },
           "gatewaySubnetId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRGName')), 'Microsoft.Resources/deployments', 'hubVnet'), '2022-09-01').outputs.subnets.value[1].id]"
