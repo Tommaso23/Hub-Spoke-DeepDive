@@ -2,11 +2,20 @@ targetScope = 'subscription'
 param location string = deployment().location
 
 @description('Set the region abbreviation for resource names')
-@maxLength(4)
-param locationPrefix string = 'itn'
+
+var locationPrefixDict = {
+  westeurope: 'we'
+  northeurope: 'ne'
+  uksouth: 'uks'
+  italynorth: 'itn'
+}
+
+var locationPrefix = locationPrefixDict[?location] ?? ''
 
 @description('Set to true to deploy the entire architecture')
 param finalDeployment bool = false
+
+
 
 var hubRGName = 'rg-hub-test-${locationPrefix}'
 var spoke1RGName = 'rg-spoke1-test-${locationPrefix}'
