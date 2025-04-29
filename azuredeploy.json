@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "11187820592594931055"
+      "templateHash": "4653537374997353548"
     }
   },
   "parameters": {
@@ -86,7 +86,7 @@
     ],
     "spoke1Subnet": {
       "subnetAddrPrefix": "[variables('spoke1SubnetAddrPrefix')]",
-      "subnetName": "snet-linux-vms",
+      "subnetName": "snet-win-vms",
       "vnetName": "[variables('spoke1VnetName')]",
       "nsgId": "",
       "routeTableId": ""
