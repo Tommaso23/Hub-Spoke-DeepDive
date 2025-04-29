@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "10546298066048356985"
+      "templateHash": "6093511517227531557"
     }
   },
   "parameters": {
@@ -16,7 +16,10 @@
     "locationPrefix": {
       "type": "string",
       "defaultValue": "itn",
-      "maxLength": 3
+      "maxLength": 4,
+      "metadata": {
+        "description": "Set the region abbreviation for resource names"
+      }
     },
     "finalDeployment": {
       "type": "bool",
