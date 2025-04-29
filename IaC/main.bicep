@@ -16,7 +16,6 @@ var locationPrefix = locationPrefixDict[?location] ?? ''
 param finalDeployment bool = false
 
 
-
 var hubRGName = 'rg-hub-test-${locationPrefix}'
 var spoke1RGName = 'rg-spoke1-test-${locationPrefix}'
 //var spoke2RGName = 'rg-spoke2-test-${locationPrefix}'
@@ -63,7 +62,7 @@ var hubSubnet = [
 
 var spoke1Subnet = {
   subnetAddrPrefix: spoke1SubnetAddrPrefix
-  subnetName: 'snet-linux-vms'
+  subnetName: 'snet-win-vms'
   vnetName: spoke1VnetName
   nsgId: ''
   routeTableId: ''
