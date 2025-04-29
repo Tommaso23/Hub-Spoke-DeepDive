@@ -2,7 +2,6 @@ targetScope = 'subscription'
 param location string = deployment().location
 
 @description('Set the region abbreviation for resource names')
-
 var locationPrefixDict = {
   westeurope: 'we'
   northeurope: 'ne'
